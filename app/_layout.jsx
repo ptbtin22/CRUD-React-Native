@@ -5,7 +5,10 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <Stack>
-        <Stack.Screen name="index" options={{ title: "To-Do List" }} />
+        <Stack.Screen
+          name="index"
+          options={{ title: "To-Do List", headerShown: false }}
+        />
       </Stack>
     </SafeAreaProvider>
   );
