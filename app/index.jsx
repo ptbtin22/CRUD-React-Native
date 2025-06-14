@@ -7,12 +7,20 @@ import {
   Pressable,
   StyleSheet,
   FlatList,
+  Appearance,
 } from "react-native";
+import { Colors } from "@/constants/Colors";
 import Entypo from "@expo/vector-icons/Entypo";
 
 import { data } from "../data/todos";
 
 export default function Index() {
+  const colorScheme = Appearance.getColorScheme();
+
+  const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
+
+  const styles = createStyles(theme);
+
   const [todos, setTodos] = useState(data.sort((a, b) => b.id - a.id));
 
   const [text, setText] = useState("");
@@ -20,16 +28,14 @@ export default function Index() {
   const separatorComp = <View style={styles.separator} />;
 
   const addTodo = () => {
-    setTodos((prevTodos) => {
-      if (text.trim() === "") return prevTodos;
-
-      // clear the input field
-      const task = text.trim();
+    if (text.trim()) {
+      const newId = todos.length > 0 ? todos[0].id + 1 : 1;
+      setTodos((prevTodos) => [
+        { id: newId, title: text.trim(), completed: false },
+        ...prevTodos,
+      ]);
       setText("");
-
-      const newId = prevTodos.length > 0 ? prevTodos[0].id + 1 : 1;
-      return [{ id: newId, title: task, completed: false }, ...prevTodos];
-    });
+    }
   };
 
   const removeTodo = (id) => {
@@ -80,66 +86,70 @@ export default function Index() {
       <FlatList
         data={todos}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         ItemSeparatorComponent={separatorComp}
       />
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "flex-start",
-  },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    margin: 16,
-  },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    padding: 10,
-    marginRight: 8,
-  },
-  button: {
-    backgroundColor: "black",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 4,
-  },
-  buttonText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  separator: {
-    height: 1,
-    backgroundColor: "#ccc",
-    marginVertical: 8,
-    marginHorizontal: 16,
-  },
-  todoItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginHorizontal: 16,
-    paddingVertical: 12,
-    borderColor: "#eee",
-  },
-  todoText: {
-    fontSize: 16,
-  },
-  trashIcon: {
-    color: "black",
-    backgroundColor: "red",
-    padding: 8,
-    borderRadius: 50,
-  },
-  completed: {
-    textDecorationLine: "line-through",
-    color: "gray",
-  },
-});
+function createStyles(theme) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "flex-start",
+      backgroundColor: theme.background,
+    },
+    inputRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      margin: 16,
+    },
+    input: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: theme.inputBorder,
+      borderRadius: 4,
+      padding: 10,
+      marginRight: 8,
+    },
+    button: {
+      backgroundColor: theme.buttonBackground,
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      borderRadius: 4,
+    },
+    buttonText: {
+      color: theme.buttonText,
+      fontWeight: "bold",
+    },
+    separator: {
+      height: 1,
+      backgroundColor: theme.separator,
+      marginVertical: 8,
+      marginHorizontal: 16,
+    },
+    todoItem: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginHorizontal: 16,
+      paddingVertical: 12,
+      borderColor: "#eee",
+    },
+    todoText: {
+      color: theme.text,
+      fontSize: 16,
+    },
+    trashIcon: {
+      color: theme.trashIcon,
+      backgroundColor: "red", // or add a theme.trashBg if needed
+      padding: 8,
+      borderRadius: 50,
+    },
+    completed: {
+      textDecorationLine: "line-through",
+      color: "gray",
+    },
+  });
+}
