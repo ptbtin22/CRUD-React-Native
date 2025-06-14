@@ -10,12 +10,39 @@ import {
 } from "react-native";
 import Entypo from "@expo/vector-icons/Entypo";
 
-import { data as TODO_LIST } from "../data/todos";
+import { data } from "../data/todos";
 
 export default function Index() {
+  const [todos, setTodos] = useState(data.sort((a, b) => b.id - a.id));
+
   const [text, setText] = useState("");
 
   const separatorComp = <View style={styles.separator} />;
+
+  const addTodo = () => {
+    setTodos((prevTodos) => {
+      if (text.trim() === "") return prevTodos;
+
+      // clear the input field
+      const task = text.trim();
+      setText("");
+
+      const newId = prevTodos.length > 0 ? prevTodos[0].id + 1 : 1;
+      return [{ id: newId, title: task, completed: false }, ...prevTodos];
+    });
+  };
+
+  const removeTodo = (id) => {
+    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+  };
+
+  const toggleTodo = (id) => {
+    setTodos((prevTodos) =>
+      prevTodos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
 
   function onChangeText(newText) {
     setText(newText);
@@ -24,8 +51,14 @@ export default function Index() {
   function renderItem({ item }) {
     return (
       <View style={styles.todoItem}>
-        <Text style={styles.todoText}>{item.title}</Text>
-        <Entypo name="trash" size={16} style={styles.trashIcon} />
+        <Pressable onPress={() => toggleTodo(item.id)}>
+          <Text style={[styles.todoText, item.completed && styles.completed]}>
+            {item.title}
+          </Text>
+        </Pressable>
+        <Pressable onPress={() => removeTodo(item.id)}>
+          <Entypo name="trash" size={16} style={styles.trashIcon} />
+        </Pressable>
       </View>
     );
   }
@@ -40,15 +73,12 @@ export default function Index() {
           placeholder="Add a new todo"
           keyboardType="default"
         />
-        <Pressable
-          style={styles.button}
-          onPress={() => console.log("Added:", text)}
-        >
+        <Pressable style={styles.button} onPress={addTodo}>
           <Text style={styles.buttonText}>Add</Text>
         </Pressable>
       </View>
       <FlatList
-        data={TODO_LIST}
+        data={todos}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         ItemSeparatorComponent={separatorComp}
@@ -107,5 +137,9 @@ const styles = StyleSheet.create({
     backgroundColor: "red",
     padding: 8,
     borderRadius: 50,
+  },
+  completed: {
+    textDecorationLine: "line-through",
+    color: "gray",
   },
 });
