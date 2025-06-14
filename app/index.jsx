@@ -112,6 +112,7 @@ function createStyles(theme) {
       borderRadius: 4,
       padding: 10,
       marginRight: 8,
+      color: theme.text,
     },
     button: {
       backgroundColor: theme.buttonBackground,
